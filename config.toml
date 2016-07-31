@@ -1,0 +1,57 @@
+[aggregator]
+db-path = 'matches.db'
+api-key = ?
+
+retry-503-limit = 10
+retry-503-delay = 1 # [sec]
+
+leagues = [
+    4289, # Captains Draft 3.0 Presented by DotaCinema & MoonduckTV
+    2032, # G-League 2014
+    4664, # The International 2016
+    4768, # The International 2016 Open Qualifiers
+    4554, # ESL One Frankfurt 2016
+    4479, # The Manila Major 2016
+    3502, # Nanyang Championships
+    4301, # 2015 MarsTV Dota 2 League
+    4461, # EPICENTER: Moscow
+    4579, # SL i-League Invitational Season 1
+    4649, # Manila Major Open Qualifiers
+    3454, # WePlay League Season 3
+    4357, # ESL One Manila 2016
+    3781, # The Summit 4
+    4210, # Dota Pit League Season Four
+    4716, # Global Grand Masters by Prodota.eu
+    4709, # ESL India Premiership - Season One
+    4682, # DafaeSports Indonesia Series Presented by Eternal Gaming
+    4700, # Pro Gamer League
+    4777, # VPGame Pro League Season 2
+    4646, # SL i-League StarSeries S2
+    4665, # ProDotA Cup Series by Azubu.tv
+    3129, # ProDotA Cup by Twitch.tv
+    3782, # Tecnolan 2015
+    4669, # WellPlay Invitational by VitalBet
+    3726, # D2CL Season 6
+    4618, # Dota 2 Challenge Mexico
+    4613, # KOD League Season 2
+    3688, # MLeS
+    4442, # The Summit 5
+]
+
+[logging]
+version = 1
+
+[logging.root]
+level = 'NOTSET'
+handlers = ['console']
+
+[logging.loggers.requests]
+level = 'WARNING'
+
+[logging.handlers.console]
+class = 'logging.StreamHandler'
+formatter = 'verbose'
+
+[logging.formatters.verbose]
+format = '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)d] %(message)s'
+datefmt = '%H:%M:%S'
