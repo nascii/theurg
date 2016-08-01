@@ -11,12 +11,12 @@ def _match_schema():
     yield _column('game_mode')
 
     yield _column('radiant_team_id', not_null=False)
-    yield _column('radiant_team_complete', conv=bool)
+    yield _column('radiant_team_complete', not_null=False, conv=bool)
     yield _column('radiant_captain', not_null=False)
     yield _column('radiant_score')
 
     yield _column('dire_team_id', not_null=False)
-    yield _column('dire_team_complete', conv=bool)
+    yield _column('dire_team_complete', not_null=False, conv=bool)
     yield _column('dire_captain', not_null=False)
     yield _column('dire_score')
 
@@ -61,12 +61,12 @@ def _league_stats_schema():
 def _column(name, path=None, conv=int, attr='', not_null=True):
     if not_null:
         attr = 'NOT NULL ' + attr
-    else:
-        _conv = conv
-        conv = lambda x: _conv(x) if x is not None else None
-        conv.__name__ = _conv.__name__
 
-    return name, path or (name,), conv, attr
+    # TODO(loyd): add `not_null` checking.
+    wconv = lambda x: conv(x) if x is not None else None
+    wconv.__name__ = conv.__name__
+
+    return name, path or (name,), wconv, attr
 
 _PLAYER_CONVS = [(path[2], conv) for _, path, conv, _ in _match_schema()
                                     if path[:2] == ('players', 0)]

@@ -139,7 +139,7 @@ class Aggregator:
 
         while not complete:
             matches, complete = self._download_by_history(league_id,
-                                                          max_id=league_stats.min_match_id)
+                                                          max_match_id=league_stats.min_match_id)
             league_stats.complete = complete
             if matches:
                 league_stats.min_match_id = matches[0].match_id
