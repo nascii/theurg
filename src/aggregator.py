@@ -68,7 +68,7 @@ class Aggregator:
         league_stats = self._load_league_stats(league_id)
 
         if league_stats:
-            self._download_recent(league_stats)
+            league_stats = self._download_recent(league_stats)
         else:
             league_stats = self._bootstrap(league_id)
 
@@ -76,7 +76,7 @@ class Aggregator:
                 return
 
         if not league_stats.complete:
-            self._download_ancient(league_stats)
+            league_stats = self._download_ancient(league_stats)
 
     def _prepare_db(self):
         self.db.row_factory = sqlite3.Row
@@ -94,14 +94,14 @@ class Aggregator:
             logger.info('There are no available matches for league #%d', league_id)
             return None
 
-        stats = LeagueStats(league_id=league_id,
-                            min_match_id=matches[0].match_id,
-                            max_match_id=matches[-1].match_id,
-                            complete=complete)
+        league_stats = LeagueStats(league_id=league_id,
+                                   min_match_id=matches[0].match_id,
+                                   max_match_id=matches[-1].match_id,
+                                   complete=complete)
 
-        self._save_matches_and_league_stats(matches, stats)
+        self._save_matches_and_league_stats(matches, league_stats)
 
-        return stats
+        return league_stats
 
     def _download_recent(self, league_stats):
         league_id = league_stats.league_id
@@ -113,7 +113,7 @@ class Aggregator:
 
         if not matches:
             logger.info('There are no new non-indexed matches for league #%d', league_id)
-            return
+            return league_stats
 
         max_match_id = matches[-1].match_id
         mid_match_id = matches[0].match_id
@@ -128,8 +128,10 @@ class Aggregator:
                 matches.extend(chunk)
                 mid_match_id = chunk[0].match_id
 
-        league_stats.max_match_id = max_match_id
+        league_stats = league_stats._replace(max_match_id = max_match_id)
         self._save_matches_and_league_stats(matches, league_stats)
+
+        return league_stats
 
     def _download_ancient(self, league_stats):
         league_id = league_stats.league_id
@@ -140,11 +142,13 @@ class Aggregator:
         while not complete:
             matches, complete = self._download_by_history(league_id,
                                                           max_match_id=league_stats.min_match_id)
-            league_stats.complete = complete
-            if matches:
-                league_stats.min_match_id = matches[0].match_id
+
+            min_match_id = matches[0].match_id if matches else league_stats.min_match_id
+            league_stats = league_stats._replace(min_match_id = min_match_id, complete = complete)
 
             self._save_matches_and_league_stats(matches, league_stats)
+
+        return league_stats
 
     def _download_by_history(self, league_id, min_match_id=None, max_match_id=None):
         suffix = ''
@@ -176,6 +180,7 @@ class Aggregator:
             json['series_id'] = meta.get('series_id')
 
             match = Match.from_json(json)
+            print(match)
             matches.append(match)
 
         return matches, complete
