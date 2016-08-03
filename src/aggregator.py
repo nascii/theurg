@@ -2,11 +2,11 @@ import sys
 import time
 import logging
 import sqlite3
+from requests import HTTPError
 
 import config
 from entities import Match, LeagueStats
 from fetcher import SteamAPI
-from requests import HTTPError
 
 _TYPE_MAP = {
     'int': 'INTEGER',
@@ -43,7 +43,7 @@ _LEAGUE_STATS_INSERT_STMT = 'INSERT OR REPLACE INTO league_stats({}) VALUES ({})
 logger = logging.getLogger(__name__)
 
 class Aggregator:
-    DB_PATH = config.get_path('aggregator', 'db-path')
+    DB_PATH = config.get_path('common', 'db-path')
     API_KEY = config.get('aggregator', 'api-key')
     RETRY_503_LIMIT = config.get('aggregator', 'retry-503-limit')
     RETRY_503_DELAY = config.get('aggregator', 'retry-503-delay')
@@ -180,7 +180,6 @@ class Aggregator:
             json['series_id'] = meta.get('series_id')
 
             match = Match.from_json(json)
-            print(match)
             matches.append(match)
 
         return matches, complete

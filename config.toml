@@ -1,6 +1,8 @@
-[aggregator]
+[common]
 db-path = 'matches.db'
-api-key = ?
+
+[aggregator]
+api-key = 
 
 retry-503-limit = 10
 retry-503-delay = 1 # [sec]
