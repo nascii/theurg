@@ -42,23 +42,14 @@ _LEAGUE_STATS_INSERT_STMT = 'INSERT OR REPLACE INTO league_stats({}) VALUES ({})
 logger = logging.getLogger(__name__)
 
 class Aggregator:
-    DB_PATH = config.get_path('aggregation', 'db-path')
-    API_KEY_PATH = config.get_path('aggregation', 'api-key-path')
-    RETRY_LIMIT = config.get('aggregation', 'retry-limit')
-    RETRY_DELAY = config.get('aggregation', 'retry-delay')
-    LEAGUES = config.get('aggregation', 'leagues')
-
-    with open(API_KEY_PATH) as apikey:
-        API_KEY = apikey.read().strip()
-
-    def __init__(self):
-        self.api = SteamAPI(self.API_KEY, self.RETRY_LIMIT, self.RETRY_DELAY)
-        self.db = sqlite3.connect(self.DB_PATH)
+    def __init__(self, db_path, api_key, retry_limit=None, retry_delay=None):
+        self.api = SteamAPI(api_key, retry_limit, retry_delay)
+        self.db = sqlite3.connect(db_path)
 
         self._prepare_db()
 
-    def complement(self):
-        for league_id in self.LEAGUES:
+    def complement(self, leagues):
+        for league_id in leagues:
             try:
                 self.complement_league(league_id)
             except KeyboardInterrupt:
@@ -200,6 +191,3 @@ class Aggregator:
 
         logger.info('%d matches for league #%d have been added to the database',
                     len(matches), league_stats.league_id)
-
-if __name__ == '__main__':
-    Aggregator().complement()
