@@ -44,10 +44,13 @@ logger = logging.getLogger(__name__)
 
 class Aggregator:
     DB_PATH = config.get_path('common', 'db-path')
-    API_KEY = config.get('aggregator', 'api-key')
+    API_KEY_PATH = config.get_path('aggregator', 'api-key-path')
     RETRY_503_LIMIT = config.get('aggregator', 'retry-503-limit')
     RETRY_503_DELAY = config.get('aggregator', 'retry-503-delay')
     LEAGUES = config.get('aggregator', 'leagues')
+
+    with open(API_KEY_PATH) as apikey:
+        API_KEY = apikey.read().strip()
 
     def __init__(self):
         self.api = SteamAPI(self.API_KEY)

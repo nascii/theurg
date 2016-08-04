@@ -2,7 +2,7 @@
 db-path = 'matches.db'
 
 [aggregator]
-api-key = 
+api-key-path = 'steam_api.key'
 
 retry-503-limit = 10
 retry-503-delay = 1 # [sec]
