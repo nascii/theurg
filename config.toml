@@ -1,11 +1,9 @@
-[common]
+[aggregation]
 db-path = 'matches.db'
-
-[aggregator]
 api-key-path = 'steam_api.key'
 
-retry-503-limit = 10
-retry-503-delay = 1 # [sec]
+retry-limit = 10
+retry-delay = 1 # [sec]
 
 leagues = [
     4289, # Captains Draft 3.0 Presented by DotaCinema & MoonduckTV

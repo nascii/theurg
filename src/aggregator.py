@@ -2,7 +2,6 @@ import sys
 import time
 import logging
 import sqlite3
-from requests import HTTPError
 
 import config
 from entities import Match, LeagueStats
@@ -43,17 +42,17 @@ _LEAGUE_STATS_INSERT_STMT = 'INSERT OR REPLACE INTO league_stats({}) VALUES ({})
 logger = logging.getLogger(__name__)
 
 class Aggregator:
-    DB_PATH = config.get_path('common', 'db-path')
-    API_KEY_PATH = config.get_path('aggregator', 'api-key-path')
-    RETRY_503_LIMIT = config.get('aggregator', 'retry-503-limit')
-    RETRY_503_DELAY = config.get('aggregator', 'retry-503-delay')
-    LEAGUES = config.get('aggregator', 'leagues')
+    DB_PATH = config.get_path('aggregation', 'db-path')
+    API_KEY_PATH = config.get_path('aggregation', 'api-key-path')
+    RETRY_LIMIT = config.get('aggregation', 'retry-limit')
+    RETRY_DELAY = config.get('aggregation', 'retry-delay')
+    LEAGUES = config.get('aggregation', 'leagues')
 
     with open(API_KEY_PATH) as apikey:
         API_KEY = apikey.read().strip()
 
     def __init__(self):
-        self.api = SteamAPI(self.API_KEY)
+        self.api = SteamAPI(self.API_KEY, self.RETRY_LIMIT, self.RETRY_DELAY)
         self.db = sqlite3.connect(self.DB_PATH)
 
         self._prepare_db()
@@ -162,8 +161,7 @@ class Aggregator:
 
         logger.debug('Looking for matches for league #%d%s...', league_id, suffix)
 
-        history = self._download_with_retries(
-            lambda: self.api.match_history(league_id, max_match_id - 1 if max_match_id else None))
+        history = self.api.match_history(league_id, max_match_id - 1 if max_match_id else None)
 
         complete = history['results_remaining'] == 0
         if not complete and min_match_id:
@@ -179,27 +177,13 @@ class Aggregator:
             match_id = meta['match_id']
             logger.debug('Downloading match #%d...', match_id)
 
-            json = self._download_with_retries(lambda: self.api.match_details(match_id))
+            json = self.api.match_details(match_id)
             json['series_id'] = meta.get('series_id')
 
             match = Match.from_json(json)
             matches.append(match)
 
         return matches, complete
-
-    def _download_with_retries(self, download):
-        retries = 0
-
-        while True:
-            try:
-                return download()
-            except HTTPError as error:
-                if error.response.status_code == 503 and retries < self.RETRY_503_LIMIT:
-                    retries += 1
-                    logger.debug('Server is busy, attempt again some time later...')
-                    time.sleep(self.RETRY_503_DELAY)
-                else:
-                    raise
 
     def _load_league_stats(self, league_id):
         cursor = self.db.execute('SELECT * FROM league_stats WHERE league_id = ?', (league_id,))
