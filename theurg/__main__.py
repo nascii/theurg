@@ -6,19 +6,22 @@ def parse_args():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest='command')
 
-    agg = subparsers.add_parser('aggregate')
-    agg.add_argument('leagues', metavar='league', nargs='*', type=int,
+    p = subparsers.add_parser('aggregate')
+    p.add_argument('leagues', metavar='league', nargs='*', type=int,
                      default=config.get('aggregation', 'leagues'))
-    agg.add_argument('--db-path', default=config.get_path('aggregation', 'db-path'))
-    agg.add_argument('--api-key')
-    agg.add_argument('--api-key-path', default=config.get_path('aggregation', 'api-key-path'))
-    agg.add_argument('--retry-limit', type=int, default=config.get('aggregation', 'retry-limit'))
-    agg.add_argument('--retry-delay', type=int, default=config.get('aggregation', 'retry-delay'))
+    p.add_argument('--db-path', default=config.get_path('aggregation', 'db-path'))
+    p.add_argument('--api-key')
+    p.add_argument('--api-key-path', default=config.get_path('aggregation', 'api-key-path'))
+    p.add_argument('--retry-limit', type=int, default=config.get('aggregation', 'retry-limit'))
+    p.add_argument('--retry-delay', type=int, default=config.get('aggregation', 'retry-delay'))
+
+    p = subparsers.add_parser('train')
+    p.add_argument('--db-path', default=config.get_path('aggregation', 'db-path'))
 
     args = parser.parse_args()
 
     # `api-key-path` to `api-key` if needed.
-    if not args.api_key:
+    if hasattr(args, 'api_key') and not args.api_key:
         with open(args.api_key_path) as api_key_file:
             args.api_key = api_key_file.read().strip()
 
@@ -27,13 +30,21 @@ def parse_args():
 def aggregate(args):
     from aggregator import Aggregator
 
-    agg = Aggregator(args.db_path, args.api_key, args.retry_limit, args.retry_delay)
-    agg.complement(args.leagues)
+    aggregator = Aggregator(args.db_path, args.api_key, args.retry_limit, args.retry_delay)
+    aggregator.complement(args.leagues)
+
+def train(args):
+    from trainer import Trainer
+
+    trainer = Trainer(args.db_path)
+    trainer.train()
 
 def main():
     args = parse_args()
 
     if args.command == 'aggregate':
         aggregate(args)
+    elif args.command == 'train':
+        train(args)
 
 main()

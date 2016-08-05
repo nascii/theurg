@@ -3,7 +3,6 @@ import time
 import logging
 import sqlite3
 
-import config
 from entities import Match, LeagueStats
 from fetcher import SteamAPI
 
