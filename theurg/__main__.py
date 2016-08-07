@@ -15,7 +15,7 @@ def parse_args():
     p.add_argument('--retry-limit', type=int, default=config.get('aggregation', 'retry-limit'))
     p.add_argument('--retry-delay', type=int, default=config.get('aggregation', 'retry-delay'))
 
-    p = subparsers.add_parser('train')
+    p = subparsers.add_parser('predict')
     p.add_argument('--db-path', default=config.get_path('aggregation', 'db-path'))
 
     args = parser.parse_args()
@@ -33,18 +33,18 @@ def aggregate(args):
     aggregator = Aggregator(args.db_path, args.api_key, args.retry_limit, args.retry_delay)
     aggregator.complement(args.leagues)
 
-def train(args):
-    from trainer import Trainer
+def predict(args):
+    from predictor import Predictor
 
-    trainer = Trainer(args.db_path)
-    trainer.train()
+    predictor = Predictor(args.db_path)
+    predictor.train()
 
 def main():
     args = parse_args()
 
     if args.command == 'aggregate':
         aggregate(args)
-    elif args.command == 'train':
-        train(args)
+    elif args.command == 'predict':
+        predict(args)
 
 main()
