@@ -66,3 +66,30 @@ class SteamAPI:
                 raise SteamAPIError('Invalid "status": {}'.format(result['status']))
 
         return result
+
+class DotabuffError(Exception):
+    pass
+
+class Dotabuff:
+    BASE_URL = 'http://www.dotabuff.com/esports'
+
+    _NAMES = ['Amateur League', 'Professional League', 'Premium League']
+    _MARKS = ['<small>{}</small>'.format(name) for name in _NAMES]
+
+    def league_tier(self, league_id):
+        txt = self._request('{}/{}/{}'.format(self.BASE_URL, 'leagues', league_id))
+
+        for idx, mark in enumerate(self._MARKS):
+            if mark in txt:
+                return idx + 1
+
+        raise DotabuffError('Not found league tier')
+
+    def _request(self, url):
+        r = requests.get(url, headers={
+            # This prevents getting 429. xD
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0'
+        })
+        r.raise_for_status()
+
+        return r.text
