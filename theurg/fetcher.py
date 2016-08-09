@@ -18,11 +18,12 @@ class SteamAPI:
             'match_id': match_id
         })
 
-    def match_history(self, league_id=None, start_at_match_id=None):
+    def match_history(self, league_id=None, hero_id=None, start_at_match_id=None):
         some_big_number = 10000
 
         return self.request('GetMatchHistory', {
             'league_id': league_id,
+            'hero_id': hero_id,
             'start_at_match_id': start_at_match_id,
             'min_players': 10,
             'matches_requested': some_big_number
