@@ -190,8 +190,11 @@ class Aggregator:
         low, high = min_match_id or 0, max_match_id or sys.maxsize
         relevant = [m for m in history['matches'] if low < m['match_id'] < high]
 
-        min_match_id = min(m['match_id'] for m in history['matches'])
-        max_match_id = max(m['match_id'] for m in history['matches'])
+        if not relevant:
+            return [], complete, (None, None)
+
+        min_match_id = min(m['match_id'] for m in relevant)
+        max_match_id = max(m['match_id'] for m in relevant)
 
         unknown = (m for m in relevant if m['match_id'] not in self._match_filter)
         ordered = sorted(unknown, key=lambda m: m['match_id'])
