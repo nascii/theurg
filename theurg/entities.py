@@ -4,6 +4,7 @@ def _match_schema():
     yield _column('match_id', attr='PRIMARY KEY')
     yield _column('match_seq_num')
     yield _column('league_id')
+    yield _column('league_tier')
     yield _column('series_id', not_null=False)
     yield _column('series_type', not_null=False)
     yield _column('start_time')
@@ -55,6 +56,7 @@ def _match_schema():
 
 def _league_stats_schema():
     yield _column('league_id', attr='PRIMARY KEY')
+    yield _column('tier')
     yield _column('min_match_id')
     yield _column('max_match_id')
     yield _column('complete', conv=bool)

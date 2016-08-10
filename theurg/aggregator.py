@@ -82,8 +82,9 @@ class Aggregator:
     def _bootstrap(self, league_id):
         logger.info('Bootstrapping league #%d...', league_id)
 
-        matches, complete, (min_match_id, max_match_id) = self._download_by_history(league_id)
-
+        league_tier = self._dotabuff.league_tier(league_id)
+        matches, complete, (min_match_id, max_match_id) = self._download_by_history(league_id,
+                                                                                    league_tier)
         if not matches:
             logger.info('There are no available matches for league #%d', league_id)
 
@@ -91,6 +92,7 @@ class Aggregator:
             return None
 
         league_stats = LeagueStats(league_id=league_id,
+                                   tier=league_tier,
                                    min_match_id=min_match_id,
                                    max_match_id=max_match_id,
                                    complete=complete)
@@ -101,12 +103,13 @@ class Aggregator:
 
     def _download_recent(self, league_stats):
         league_id = league_stats.league_id
+        league_tier = league_stats.tier
         max_saved_match_id = league_stats.max_match_id
 
         logger.info('Downloading recent matches for league #%d...', league_id)
 
         matches, complete, (mid_match_id, max_match_id) = self._download_by_history(
-            league_id, min_match_id=max_saved_match_id)
+            league_id, league_tier, min_match_id=max_saved_match_id)
 
         if not matches:
             logger.info('There are no new non-indexed matches for league #%d', league_id)
@@ -118,7 +121,7 @@ class Aggregator:
             logger.info('Last saved match for league #%d is not reached', league_id)
 
             chunk, complete, (mid_match_id, _) = self._download_by_history(
-                league_id, min_match_id=max_saved_match_id, max_match_id=mid_match_id)
+                league_id, league_tier, min_match_id=max_saved_match_id, max_match_id=mid_match_id)
 
             matches.extend(chunk)
 
@@ -141,7 +144,7 @@ class Aggregator:
 
             for hero_id, min_match_id in heroes:
                 chunk, complete, (min_match_id, _) = self._download_by_history(
-                    league_id, hero_id, max_match_id=min_match_id)
+                    league_id, league_stats.tier, hero_id, max_match_id=min_match_id)
 
                 if not complete:
                     next_heroes.append((hero_id, min_match_id))
@@ -161,7 +164,8 @@ class Aggregator:
 
         return league_stats
 
-    def _download_by_history(self, league_id, hero_id=None, min_match_id=None, max_match_id=None):
+    def _download_by_history(self, league_id, league_tier, hero_id=None,
+                             min_match_id=None, max_match_id=None):
         suffix = ''
         if hero_id:
             suffix += ' and hero #{}'.format(hero_id)
@@ -201,6 +205,7 @@ class Aggregator:
 
             json = self._steam_api.match_details(match_id)
             json['series_id'] = meta.get('series_id')
+            json['league_tier'] = league_tier
 
             match = Match.from_json(json)
             matches.append(match)
