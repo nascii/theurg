@@ -29,6 +29,9 @@ class SteamAPI:
             'matches_requested': some_big_number
         })
 
+    def league_listing(self):
+        return self.request('GetLeagueListing')
+
     def request(self, name, params={}):
         retries = self.retry_limit
 
