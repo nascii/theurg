@@ -188,7 +188,9 @@ class Aggregator:
 
         # Filter the list of matches to download.
         low, high = min_match_id or 0, max_match_id or sys.maxsize
-        relevant = [m for m in history['matches'] if low < m['match_id'] < high]
+        in_range = (m for m in history['matches'] if low < m['match_id'] < high)
+        significant = (m for m in in_range if all(pl['hero_id'] > 0 for pl in m))
+        relevant = list(significant)
 
         if not relevant:
             return [], complete, (None, None)
