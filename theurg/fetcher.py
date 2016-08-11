@@ -30,7 +30,7 @@ class SteamAPI:
         })
 
     def league_listing(self):
-        return self.request('GetLeagueListing')
+        return self.request('GetLeagueListing')['leagues']
 
     def request(self, name, params={}):
         retries = self.retry_limit
