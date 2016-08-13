@@ -60,7 +60,6 @@ def get_heroe_counts(df):
     # Counting our heroes
     counts = Counter(heroes)
     counts = [(k, counts[k]) for k in counts.keys()]
-    counts.sort(key = lambda x: x[1])
-    counts.reverse()
+    counts.sort(key=lambda x: x[1], reverse=True)
 
     return counts
