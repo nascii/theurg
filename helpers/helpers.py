@@ -18,6 +18,7 @@ def load_matches_df():
     query = connection.execute('SELECT * FROM match')
     columns = [column[0] for column in query.description]
     matches = pd.DataFrame.from_records(data = query.fetchall(), columns = columns)
+    connection.close()
 
     return matches
 
