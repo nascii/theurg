@@ -17,7 +17,7 @@ def load_matches_df():
     connection = sqlite3.connect(config.get_path('aggregation', 'db-path'))
     query = connection.execute('SELECT * FROM match')
     columns = [column[0] for column in query.description]
-    matches = pd.DataFrame.from_records(data = query.fetchall(), columns = columns)
+    matches = pd.DataFrame.from_records(data=query.fetchall(), columns=columns)
     connection.close()
 
     return matches
