@@ -9,5 +9,7 @@ Some feature ideas:
 - Team historical stats: farming, winning, etc.
 - Players historical stats
 - Counting teams as a set of players, because there are a lot of teams without `team_id` (they are forming just for play)
+- Offset feature (because we see radiant advantage)
+- Team and player popularity
 
 The plan is: add feature by feature :|
