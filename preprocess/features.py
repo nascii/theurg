@@ -20,20 +20,20 @@ def get_heroes_dummies(df):
     ### SHIT STARTS ###
     # If we will not do this shit, we will have NaNs for not intersecting columns when adding dfs
     heroes_names = list(set(get_all_heroes(df)))
-    
+
     if np.nan in heroes_names:
         heroes_names.pop(heroes_names.index(np.nan))
 
     for name in heroes_names:
         radiant_c = 'radiant_has_heroe_id_' + str(name)
         dire_c = 'dire_has_heroe_id_' + str(name)
-        
+
         if radiant_c not in radiant_heroes_1.columns: radiant_heroes_1[radiant_c] = 0
         if radiant_c not in radiant_heroes_2.columns: radiant_heroes_2[radiant_c] = 0
         if radiant_c not in radiant_heroes_3.columns: radiant_heroes_3[radiant_c] = 0
         if radiant_c not in radiant_heroes_4.columns: radiant_heroes_4[radiant_c] = 0
         if radiant_c not in radiant_heroes_5.columns: radiant_heroes_5[radiant_c] = 0
-        
+
         if dire_c not in dire_heroes_1.columns: dire_heroes_1[dire_c] = 0
         if dire_c not in dire_heroes_2.columns: dire_heroes_2[dire_c] = 0
         if dire_c not in dire_heroes_3.columns: dire_heroes_3[dire_c] = 0
